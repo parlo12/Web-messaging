@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
+     <uses-permission android:name="android.permission.SEND_SMS"
+        android:label="@string/permission_label_send_sms"
+        android:description="string/permission_description_send_sms"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"
+        android:label="@string/permission_label_receive_sms"
+        android:description="string/permission_description_receive_sms"/>
+    <uses-permission android:name="android.permission.READ_SMS"
+        android:label="@string/permission_label_read_sms"
+        android:description="string/permission_description_read_sms"/>
+    <uses-permission android:name="android.permission.INTERNET"
+        android:label="@string/permission_label_internet"
+        android:description="string/allow_app_to_view_wifi"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"
+        android:label="@string/permission_label_network_state"
+        android:description="string/allow_app_to_gauge_network_strength"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"
+        android:label="@string/permission_label_read_phone_state"
+        android:description="string/permission_description_read_phone_state"/>
+
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SmsGateway">
+        <service
+            android:name=".services.PushService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".receivers.EventsReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="me.capcom.smsgateway.ACTION_SENT" />
+                <action android:name="me.capcom.smsgateway.ACTION_DELIVERED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receivers.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.ACTION_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.REBOOT" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".modules.localserver.WebService"
+            android:enabled="true" />
+
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

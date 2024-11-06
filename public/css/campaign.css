@@ -1,0 +1,22 @@
+/* Basic styling for the page */
+body {
+    font-family: sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+#csvFileInput {
+    margin-bottom: 10px;
+}
+
+#messagePreview {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+}
+

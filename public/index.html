@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login-Page</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/logo.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <div class="row">
+                <div id="logocontainer" onclick="fill()">
+                    <div id="pelogo">RMHGO</div>
+                    <div class="loader" style="left:2vh; top:0; height:2vh; width:0; animation:slide1 1s linear forwards infinite"></div>
+                    <div class="loader" style="right:0; top:2vh; width:2vh; height:0; animation:slide2 1s linear forwards infinite; animation-delay:0.5s"></div>
+                    <div class="loader" style="right:2vh; bottom:0; height:2vh; width:0; animation:slide3 1s linear forwards infinite"></div>
+                    <div class="loader" style="left:0; bottom:2vh; width:2vh; height:0; animation:slide4 1s linear forwards infinite; animation-delay:0.5s"></div>
+                </div>
+
+                <div class="login-left">
+                    <h2>Login</h2>
+                    <form id="loginForm">
+                        <div class="textbox">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="user" placeholder="Email" required>
+                        </div>
+                        <input type="submit" class="btn" value="Login">
+                    </form>
+                </div>  
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#loginForm").submit(function(event) {
+                event.preventDefault();
+
+                const email = $("input[name='user']").val();
+
+                const payload = { email };
+
+                $.ajax({
+                    url: "http://localhost:4000/users/login",
+                    method: "POST",
+                    data: JSON.stringify(payload),
+                    contentType: "application/json",
+                    success: function(response) {
+                        console.log("Login successful:", response);
+
+                        const accessToken = "Bearer " + response.token;
+                        const userId = response.data._id;
+                        const userRole = response.data.role;
+
+                        // Store data in localStorage
+                        localStorage.setItem('accessToken', accessToken);
+                        localStorage.setItem('userId', userId);
+                        localStorage.setItem('userRole', userRole);
+
+                        // Redirect to conversation page
+                        window.location.href = "conversation.html";
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Login failed:", error);
+                        alert("Invalid email or failed to connect.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

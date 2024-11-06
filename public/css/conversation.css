@@ -1,0 +1,387 @@
+/* General Styles */
+body {
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; /* Use macOS system font */
+    background-color: #f5f5f5; /* Light gray background */
+    margin: 0;
+    display: flex; /* For flexbox layout */
+}
+
+.container {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    background-color: #fff;
+    border-right: 1px solid #eee; /* Divider between sidebar and content */
+    overflow-y: auto; /* Scrollable content */
+}
+
+.search-bar {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee; /* Subtle divider */
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.conversation-list {
+    padding: 10px;
+}
+
+
+/* Content Area (Placeholder) */
+.content {
+    flex: 1;
+    background-color: #fff;
+}
+
+/* ... (Your existing general styles from the previous response) ... */
+
+/* Conversation Item */
+.conversation-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee; /* Divider between items */
+    cursor: pointer; /* Indicate interactivity */
+}
+
+.conversation-item:hover {
+    background-color: #f9f9f9; /* Subtle hover effect */
+}
+
+.conversation-item .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%; /* Circular avatar */
+    margin-right: 15px;
+    overflow: hidden; /* Clip overflowing image content */
+}
+
+.conversation-item .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover the entire avatar area */
+}
+
+.conversation-item .info {
+    flex: 1;
+}
+
+.conversation-item .name {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.conversation-item .preview {
+    font-size: 14px;
+    color: #666; /* Lighter text color for preview */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Truncate long messages with ellipsis */
+    white-space: nowrap;
+}
+
+.conversation-item .timestamp {
+    font-size: 12px;
+    color: #999; /* Even lighter for timestamp */
+}
+
+/* ... (Rest of your existing styles) ... */
+
+.conversation-item.unread .name { /* Style unread message names */
+    font-weight: bold;
+}
+
+.conversation-item.unread .preview { /* Style unread message previews */
+    font-weight: normal;
+}
+
+
+/* ... (Your existing styles) ... */
+
+/* Message Styling */
+.content #conversation-details {
+    padding: 20px;
+}
+
+.content .message {
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+/* General Styles */
+body {
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; /* Use macOS system font */
+    background-color: #f5f5f5; /* Light gray background */
+    margin: 0;
+    display: flex; /* For flexbox layout */
+}
+
+.container {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    background-color: #fff;
+    border-right: 1px solid #eee; /* Divider between sidebar and content */
+    overflow-y: auto; /* Scrollable content */
+}
+
+/* Conversation Item Styling - macOS Messages Look */
+
+.conversation-item {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    padding: 10px 15px; /* Adjust padding for a tighter look */
+    border-bottom: 1px solid #f0f0f0; /* Use a lighter gray for the divider */
+    cursor: pointer;
+    transition: background-color 0.2s; /* Smooth transition on hover */
+}
+
+.conversation-item:hover {
+    background-color: #f5f5f5; /* Very subtle gray on hover */
+}
+
+.conversation-item .avatar {
+    width: 40px; /* Slightly smaller avatar */
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px; /* Less space between avatar and text */
+}
+
+.conversation-item .info {
+    flex: 1;
+}
+
+.conversation-item .name {
+    font-weight: 600;  /* Slightly bolder font weight */
+    font-size: 15px;
+    margin-bottom: 2px; /* Reduce space between name and preview */
+}
+
+.conversation-item .preview {
+    font-size: 13px;
+    color: #888; /* Darker gray for preview text */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.conversation-item .timestamp {
+    font-size: 12px;
+    color: #aaa; /* Even lighter gray for timestamp */
+    align-self: flex-end; /* Position timestamp at the bottom */
+    margin-left: auto; /* Push it to the right */
+}
+
+.conversation-item.unread .name { /* Style unread message names */
+    font-weight: bold;
+}
+
+.conversation-item.unread .preview { /* Style unread message previews */
+    font-weight: normal;
+}
+
+.conversation-item.active,
+.conversation-item.active:hover { /* Style the active conversation */
+    background-color: #e0f7fa; /* Light blue background */
+}
+
+/* Message Styling */
+.content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto; /* Enable scrolling for long conversations */
+}
+
+.conversation-details {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 50px;
+}
+
+.message {
+    background-color: #f0f0f0; /* Light gray background */
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    max-width: 70%; /* Limit message width for better readability */
+    clear: both; /* Prevent messages from overlapping */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle shadow for messages */
+    word-wrap: break-word; /* Wrap long words */
+}
+
+.message.delivered {
+    float: right;
+    background-color: #007AFF; /* Blue for sent messages */
+    color: white; /* White text for sent messages */
+    text-align: right;
+}
+
+.message.received {
+    float: left; /* Align received messages to the left */
+}
+
+/* ... other styles ... */
+/* recipient information */
+.recipient-info {
+    text-align: center;
+    font-size: 18px; /* Or your desired font size */
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  
+  /* Message Groups */
+  .message-group {
+    margin-bottom: 15px; /* Add spacing between message groups */
+  }
+
+  /* message input container */
+.message-input-container {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid #eee; /* Add a top border to separate the input area */
+    position: fixed; /* Keep it at the bottom of the content area */
+    bottom: 0;
+    left: 300px; /* Adjust the left position to account for the sidebar width */
+    width: calc(100% - 1137px); /* Make the input area fill the remaining width */
+    background-color: #fff; /* Match the background color of the content area */
+  }
+  
+  .new-message-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+  
+  .send-button {
+    background-color: #007AFF; /* Blue */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  /* ... (Your existing CSS) ... */
+
+/* macOS Button Style */
+
+/* ... (Your existing CSS) ... */
+
+/* Sidebar Header Style */
+.sidebar-header {
+    background-color: #f5f5f5; /* Light gray background */
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee; /* Divider line */
+}
+
+/* ... (Your macOS Button Style - no changes needed) ... */
+
+.macos-button {
+    background-color: #007AFF; /* macOS default button blue */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px; /* Adjust as needed */
+    margin: 10px auto; /* Center the button horizontally */
+    cursor: pointer;
+    border-radius: 5px; /* macOS rounded corners */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); /* Subtle shadow */
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1); /* Smooth transition on hover */
+  }
+  
+  .macos-button:hover {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23); /* Stronger shadow */
+    filter: brightness(1.1); /* Slightly increase brightness */
+  }
+
+  .chatgpt-suggestion {
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px; 
+  }
+
+  .property-checker {
+    margin-top: 20px;
+    margin-bottom: 50px;
+  }
+  
+  .property-address {
+    width: calc(100% - 100px);
+    padding: 10px;
+    margin-right: 10px;
+  }
+  
+  .check-property-button {
+    padding: 10px;
+  }
+  
+  .property-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+    max-width: 1100px !important;
+    height: 700px;
+  }
+  
+  .close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close-button:hover,
+  .close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  #property-frame {
+    width: 100%;
+    height: 700px;
+  }
+  
+  
+  
+  
+  
+  
+

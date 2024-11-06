@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Messaging App</title>
+  <link rel="stylesheet" type="text/css" href="css/conversation.css">
+  <link rel="stylesheet" type="text/css" href="css/agreement.css"> <!-- Add this line for agreement.css -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="search-bar">
+        <header class="sidebar-header">
+          <button id="campaignButton" class="macos-button">Campaign</button>
+        </header>
+        <i class="material-icons">search</i>
+        <input type="text" placeholder="Search">
+      </div>
+      <div class="conversation-list"></div>
+    </div>
+    <div class="content">
+        <div class="conversation-details"></div>
+        
+        <!-- New Section for Checking Property Value -->
+        <div class="property-checker">
+          <label for="property-address">Check Property Estimated Value:</label>
+          <input type="text" id="property-address" class="property-address" placeholder="Paste address here">
+          <button id="check-property-button" class="check-property-button">Check</button>
+        </div>
+    
+        <!-- Modal for Zillow iframe -->
+        <div id="property-modal" class="property-modal">
+          <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <iframe id="property-frame" src="" frameborder="0"></iframe>
+          </div>
+        </div>
+
+        <!-- Send Agreement Button -->
+        <button id="send-agreement-button" class="send-agreement-button">Comp Deal Machine</button>
+    
+        <!-- Modal for Agreement iframe -->
+        <div id="agreement-modal" class="agreement-modal">
+          <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <iframe id="agreement-frame" src="https://app.dealmachine.com" frameborder="0"></iframe>
+          </div>
+        </div>
+
+      </div>
+  </div>
+  <script src="/js/conversation_status.js"></script>
+  <script src="/js/send.js"></script>
+  <script src="/js/modal.js"></script> <!-- Add this script for modal functionality -->
+  <!-- <script src="/js/agreement.js"></script> Add this script for agreement.js -->
+</body>
+</html>
