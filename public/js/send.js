@@ -52,8 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 content: messageContent,
                 userId: userId,
                 deviceId: "device_id_placeholder", // Replace with actual device ID if needed
-                origin: "crm"   // Set origin to "crm" to indicate it is from CRM
+                origin: "CRM"   // Set origin to "CRM" to indicate it is from CRM
             };
+
+            // Log the payload for debugging
+            console.log('Sending payload:', payload);
 
             socket.emit('message', payload);
             console.log('Sent message:', payload);
