@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const userId = localStorage.getItem('userId');
     const userRole = localStorage.getItem('userRole');
     const accessToken = localStorage.getItem('accessToken');
+    let groupedConversations = {};
+    let lastMessageTimestamp = new Date(0); // Tracks the latest message time
+    const messagesPerLoad = 11; // Number of messages to load per scroll
+    let currentConversation = []; // Stores messages of the active conversation
+    let loadedMessages = 0; // Tracks number of loaded messages in the current conversation
 
     if (!userId || !userRole || !accessToken) {
         window.location.href = "index.html";
@@ -11,18 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Establish WebSocket connection
-    const socket = io('http://localhost:4000', {
+    const socket = io('http://165.22.179.230:4000', {
         auth: { token: accessToken }
     });
 
     socket.on('connect', () => {
         console.log(`Connected to WebSocket server with socket ID: ${socket.id}`);
-        
-        // Join user's room to receive relevant messages
         socket.emit('joinRoom', { userId, role: userRole });
-        console.log(`User ${userId} with role ${userRole} joined room`);
-        
-        // Request all conversations initially
         fetchConversations();
     });
 
@@ -30,25 +30,53 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Disconnected from WebSocket server');
     });
 
-    // Use `allMessages` event to receive and display messages
     socket.on('allMessages', (messages) => {
         console.log('All messages:', messages);
-
-        // Display all received messages in the UI
-        const groupedConversations = groupConversationsByPhoneNumber(messages);
-        displayConversationItems(groupedConversations);
+        updateConversations(messages);
     });
 
-    // Request all messages from the server
+    // Poll for new messages every 3 seconds
+    setInterval(fetchConversations, 3000);
+
     function fetchConversations() {
         socket.emit('getAllMessages', { userId, role: userRole });
     }
 
-    // Group conversations by phone number
+    function updateConversations(messages) {
+        const newGroupedConversations = groupConversationsByPhoneNumber(messages);
+        
+        // Check for new messages in each conversation
+        for (const phoneNumber in newGroupedConversations) {
+            const newMessages = newGroupedConversations[phoneNumber].filter(msg => 
+                new Date(msg.createdAt) > lastMessageTimestamp
+            );
+            
+            // Append new messages to conversationDetails if this conversation is active
+            if (newMessages.length > 0 && isActiveConversation(phoneNumber)) {
+                newMessages.forEach(msg => {
+                    const messageElement = createMessageElement(msg, true);
+                    conversationDetails.appendChild(messageElement);
+                });
+            }
+        }
+
+        groupedConversations = newGroupedConversations;
+        displayConversationItems(groupedConversations);
+
+        // Update the timestamp to the latest message
+        const latestMessage = messages[messages.length - 1];
+        if (latestMessage) lastMessageTimestamp = new Date(latestMessage.createdAt);
+    }
+
+    function isActiveConversation(phoneNumber) {
+        const activeItem = conversationList.querySelector('.conversation-item.active');
+        return activeItem && activeItem.dataset.phoneNumber === phoneNumber;
+    }
+
     function groupConversationsByPhoneNumber(conversations) {
         const grouped = {};
         conversations.forEach(conversation => {
-            const phoneNumber = normalizePhoneNumber(conversation.recipient);
+            const phoneNumber = normalizePhoneNumber(conversation.sender || conversation.receiver);
             if (!grouped[phoneNumber]) {
                 grouped[phoneNumber] = [];
             }
@@ -57,13 +85,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return grouped;
     }
 
-    // Display conversation items in the sidebar
     function displayConversationItems(groupedConversations) {
-        conversationList.innerHTML = ''; // Clear the list
-        for (const phoneNumber in groupedConversations) {
+        conversationList.innerHTML = '';
+    
+        // Sort the conversations based on the timestamp of the latest message in each conversation
+        const sortedConversations = Object.keys(groupedConversations).sort((a, b) => {
+            const latestMessageA = groupedConversations[a][groupedConversations[a].length - 1];
+            const latestMessageB = groupedConversations[b][groupedConversations[b].length - 1];
+            return new Date(latestMessageB.createdAt) - new Date(latestMessageA.createdAt);
+        });
+    
+        // Display sorted conversations
+        sortedConversations.forEach(phoneNumber => {
             const conversations = groupedConversations[phoneNumber];
             const latestConversation = conversations[conversations.length - 1];
-            
+    
             const conversationItem = document.createElement('div');
             conversationItem.classList.add('conversation-item');
             conversationItem.innerHTML = `
@@ -71,29 +107,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar">
                 </div>
                 <div class="info">
-                    <div class="name">${latestConversation.receiver || 'Unknown'}</div>
+                    <div class="name">${phoneNumber || 'Unknown'}</div>
                     <div class="preview">${latestConversation.content}</div>
-                    <div class="timestamp">${latestConversation.createdAt}</div>
+                    <div class="timestamp">${new Date(latestConversation.createdAt).toLocaleString()}</div>
                 </div>
             `;
             conversationItem.dataset.phoneNumber = phoneNumber;
             conversationItem.addEventListener('click', () => {
                 setActiveConversation(conversationItem);
-                displayConversationDetails(phoneNumber, groupedConversations[phoneNumber]);
+                currentConversation = groupedConversations[phoneNumber];
+                loadedMessages = 0; // Reset loaded messages count
+                displayConversationDetails(phoneNumber, currentConversation);
+                localStorage.setItem('currentSender', latestConversation.sender);
+                localStorage.setItem('currentReceiver', phoneNumber);
             });
-
-            conversationList.appendChild(conversationItem); 
-        }
+    
+            conversationList.appendChild(conversationItem);
+        });
     }
 
-    // Set active conversation in the UI
     function setActiveConversation(conversationItem) {
         const allConversationItems = conversationList.querySelectorAll('.conversation-item');
         allConversationItems.forEach(item => item.classList.remove('active'));
         conversationItem.classList.add('active');
     }
 
-    // Display conversation details in the main view
     function displayConversationDetails(phoneNumber, conversations) {
         conversationDetails.innerHTML = '';
 
@@ -102,19 +140,62 @@ document.addEventListener('DOMContentLoaded', () => {
         recipientInfo.textContent = `Phone Number: ${phoneNumber}`;
         conversationDetails.appendChild(recipientInfo);
 
-        conversations.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        // Load the initial batch of messages
+        loadMoreMessages(conversations);
 
-        conversations.forEach(message => {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', message.status);
-            messageElement.textContent = message.content;
-            conversationDetails.appendChild(messageElement);
+        // Attach scroll event listener for infinite loading
+        conversationDetails.addEventListener('scroll', () => {
+            if (conversationDetails.scrollTop + conversationDetails.clientHeight >= conversationDetails.scrollHeight) {
+                loadMoreMessages(conversations);
+            }
         });
     }
 
-    // Normalize phone number to ensure consistency
+    function loadMoreMessages(conversations) {
+        const remainingMessages = conversations.slice(loadedMessages, loadedMessages + messagesPerLoad);
+
+        remainingMessages.forEach(message => {
+            const isNewMessage = new Date(message.createdAt) > lastMessageTimestamp;
+            const messageElement = createMessageElement(message, isNewMessage);
+            conversationDetails.appendChild(messageElement);
+        });
+
+        loadedMessages += remainingMessages.length;
+
+        if (remainingMessages.length > 0) {
+            lastMessageTimestamp = new Date(remainingMessages[remainingMessages.length - 1].createdAt);
+        }
+    }
+
+    function createMessageElement(message, isNewMessage) {
+        const isAndroidOrigin = message.origin === 'Android';
+
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', message.status);
+        messageElement.innerHTML = `
+            <div class="info">
+                <div class="name">${message.sender || 'Unknown'}</div>
+                <div class="preview">${message.content}</div>
+                <div class="timestamp">${new Date(message.createdAt).toLocaleString()}</div>
+                <div class="status">${message.status}</div>
+            </div>
+        `;
+
+        if (isAndroidOrigin) {
+            messageElement.style.alignSelf = 'flex-start';
+            messageElement.style.backgroundColor = isNewMessage ? '#b0f6ff' : '#f1f1f1';
+            messageElement.style.color = 'black';
+        } else {
+            messageElement.style.alignSelf = 'flex-end';
+            messageElement.style.backgroundColor = isNewMessage ? '#b0f6ff' : '#007AFF';
+            messageElement.style.color = 'white';
+            messageElement.style.marginLeft = '172px';
+        }
+        return messageElement;
+    }
+
     function normalizePhoneNumber(phoneNumber) {
-        if (!phoneNumber) return 'Unknown';  // Handle undefined or null phone numbers
+        if (!phoneNumber) return 'Unknown';
         phoneNumber = phoneNumber.replace(/\D/g, '');
         if (phoneNumber.length > 10) {
             phoneNumber = phoneNumber.slice(-10);
@@ -122,12 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return phoneNumber;
     }
 
-    // Redirect to campaign page
     const campaignButton = document.getElementById('campaignButton');
     campaignButton.addEventListener('click', () => {
         window.location.href = 'campaign.html';
     });
-
-    // Periodically fetch all messages every 5 seconds
-    setInterval(fetchConversations, 5000);
 });

@@ -5,6 +5,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let csvData = [];
 
+    const accessToken = localStorage.getItem('accessToken');
+    const userId = localStorage.getItem('userId'); // Retrieve userId
+
+    if (!accessToken || !userId) {
+        // Redirect to login page if not authenticated
+        window.location.href = "index.html";
+        return;
+    }
+
+    // Initialize WebSocket connection
+    const socket = io('http://165.22.179.230:4000', {
+        auth: { token: accessToken }
+    });
+
     csvFileInput.addEventListener("change", (event) => {
         console.log("File input changed");
         const file = event.target.files[0];
@@ -29,35 +43,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     startCampaignButton.addEventListener("click", async () => {
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-            // Redirect to login page if not authenticated
-            window.location.href = "index.html";
-            return;
-        }
-
         for (const row of csvData) {
             const formattedMessage = formatMessage(row);
             try {
-                const response = await sendMessage(accessToken, row["Phone"], formattedMessage);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok. Status: ${response.status} ${response.statusText}`);
-                }
-                const data = await response.json();
-                console.log('Message sent:', data);
+                sendMessage(row["Phone"], formattedMessage);
                 alert(`Phone Number: ${row["Phone"]} Message: ${formattedMessage}`);
-                // Optionally, redirect or update the UI here
-                //window.location.href = "conversation.html";
             } catch (error) {
                 console.error('Error sending message:', error);
             }
-            await delay(1000); // Add a delay of 1 second between each request
+            await delay(1000); // Add a delay of 1 second between each message
         }
         window.location.href = "conversation.html";
     });
 
     function formatMessage(data) {
-        // Check if 'Address' property exists, otherwise provide a default value
         const address = data["Street"] || "unknown address";
         return `Hello, are you the owner of the property located at ${address}, ${data["City"]}, ${data["State"]} ${data["Zip"]}?`;
     }
@@ -66,14 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
         formattedMessageElement.textContent = formatMessage(data);
     }
 
-    function sendMessage(accessToken, recipient, content) {
-        return fetch("http://localhost:4000", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({ recipient, content })
+    function sendMessage(recipient, content) {
+        socket.emit('message', {
+            sender: userId, // Use userId from local storage
+            receiver: recipient,
+            content: content,
+            userId: userId,
+            origin: "CRM"
         });
     }
 

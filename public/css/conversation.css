@@ -378,10 +378,30 @@ body {
     width: 100%;
     height: 700px;
   }
-  
-  
-  
-  
-  
-  
+/* added recently for conversation */
+.message {
+    max-width: 60%;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 5px 0;
+    word-wrap: break-word;
+}
 
+.message .info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sender {
+    align-self: flex-start;
+    background-color: #f1f1f1;
+    color: black;
+    border-radius: 10px 10px 10px 0;
+}
+
+.receiver {
+    align-self: flex-end;
+    background-color: #007AFF;
+    color: white;
+    border-radius: 10px 10px 0 10px;
+}

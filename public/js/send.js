@@ -24,63 +24,60 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Establish WebSocket connection
-    const socket = io('http://localhost:4000', {
+    const socket = io('http://165.22.179.230:4000', {
         auth: { token: accessToken }
     });
 
     socket.on('connect', () => {
         console.log(`Connected to WebSocket server with socket ID: ${socket.id}`);
-        
-        // Join room based on user's ID and role
         socket.emit('joinRoom', { userId, role: userRole });
     });
 
     sendButton.addEventListener('click', () => {
         const messageContent = newMessageInput.value.trim();
-        const recipientInfo = document.querySelector('.recipient-info');
-        if (!recipientInfo) {
+
+        // Retrieve sender and receiver from localStorage
+        const sender = localStorage.getItem('currentSender');
+        const receiver = localStorage.getItem('currentReceiver');
+
+        if (!receiver) {
             alert("Please select a conversation before sending a message.");
             return;
         }
-        const recipient = recipientInfo.textContent.split(' ').pop();
 
         if (messageContent) {
             const payload = {
-                sender: userId,
-                receiver: recipient,
+                sender: sender || userId,  // Use userId as a fallback if sender is not defined
+                receiver: receiver,
                 content: messageContent,
                 userId: userId,
-                deviceId: "device_id_placeholder" // Replace with actual device ID
+                deviceId: "device_id_placeholder" // Replace with actual device ID if needed
             };
 
             socket.emit('message', payload);
             console.log('Sent message:', payload);
 
-            newMessageInput.value = ''; 
+            newMessageInput.value = '';
         }
     });
 
-    // Listen for message status updates
     socket.on('messageStatusUpdate', (statusUpdate) => {
         console.log('Message status update:', statusUpdate);
-        updateMessageStatus(statusUpdate); // Optional function to handle UI updates
+        updateMessageStatus(statusUpdate); 
     });
 
-    // Optional: Function to update UI based on message status
     function updateMessageStatus(statusUpdate) {
         const { messageId, status } = statusUpdate;
         const messageElements = document.querySelectorAll('.message');
         
         messageElements.forEach((element) => {
             if (element.dataset.messageId === messageId) {
-                element.classList.add(status); // Add status class to message element
+                element.classList.add(status);
                 console.log(`Message ${messageId} status updated to ${status}`);
             }
         });
     }
 
-    // Handle disconnect and errors
     socket.on('disconnect', () => {
         console.log('Disconnected from WebSocket server');
     });
