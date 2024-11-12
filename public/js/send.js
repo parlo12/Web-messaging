@@ -36,22 +36,23 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton.addEventListener('click', () => {
         const messageContent = newMessageInput.value.trim();
 
-        // Retrieve sender and receiver from localStorage
-        const sender = localStorage.getItem('currentSender');
-        const receiver = localStorage.getItem('currentReceiver');
+        // Retrieve original sender and receiver from localStorage
+        const originalSender = localStorage.getItem('currentSender');
+        const originalReceiver = localStorage.getItem('currentReceiver');
 
-        if (!receiver) {
+        if (!originalReceiver) {
             alert("Please select a conversation before sending a message.");
             return;
         }
 
         if (messageContent) {
             const payload = {
-                sender: sender || userId,  // Use userId as a fallback if sender is not defined
-                receiver: receiver,
+                sender: originalReceiver,     // Switch sender to be the original receiver
+                receiver: originalSender || userId,  // Switch receiver to be the original sender (or use userId as fallback)
                 content: messageContent,
                 userId: userId,
-                deviceId: "device_id_placeholder" // Replace with actual device ID if needed
+                deviceId: "device_id_placeholder", // Replace with actual device ID if needed
+                origin: "crm"   // Set origin to "crm" to indicate it is from CRM
             };
 
             socket.emit('message', payload);
